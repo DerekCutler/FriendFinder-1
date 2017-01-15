@@ -145,15 +145,86 @@
                 </select>
             </div>
             <br />
-            <button type="submit" class="btn btn-success btn-lg btn-block"><i class="fa fa-check-square" aria-hidden="true"></i> Submit</button>
+            <button type="button" id="submit" class="btn btn-success btn-lg btn-block" data-toggle="modal" data-target="#modal"><i class="fa fa-check-square" aria-hidden="true"></i> Submit</button>
         </form>
         <br />
         <footer class="footer">
             <div class="container">
-                <p><a href="/api/friends">API Friends List</a> | <a href="https://github.com/cbrenner04/FriendFinder">GitHub</a></p>
+                <p><a href="/api/friends" target='_blank'>API Friends List</a> | <a href="https://github.com/cbrenner04/FriendFinder" target='_blank'>GitHub</a></p>
             </div>
         </footer>
     </div>
+    <div class="modal fade" id="modal" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $('#submit').on('click', function(event) {
+        event.preventDefault();
+        var newPerson = {
+            name: $('#name').val(),
+            image: $('#image').val(),
+            responses: [
+                $('#q1').val(), $('#q2').val(), $('#q3').val(), $('#q4').val(),
+                $('#q5').val(), $('#q6').val(), $('#q7').val(), $('#q8').val(),
+                $('#q9').val(), $('#q10').val()
+            ],
+            total: parseInt($('#q1').val()) + parseInt($('#q2').val()) + parseInt($('#q3').val()) +
+                parseInt($('#q4').val()) + parseInt($('#q5').val()) + parseInt($('#q6').val()) +
+                parseInt($('#q7').val()) + parseInt($('#q8').val()) + parseInt($('#q9').val()) +
+                parseInt($('#q10').val())
+        };
+        if (formIsValid()) {
+            $.get('/api/friends', function(data) {
+                var match = makeMatch(data, newPerson);
+                $('.modal-title').text('You have a match!');
+                $('.modal-body').html('<p class="strong">You\'re most compatible with:</p><p>' + match.name + '</p><img src="' + match.image + '" height="45">');
+                $('#modal').modal('show');
+                $('.form')[0].reset();
+                $.post('/api/friends', newPerson);
+            });
+        } else {
+            $('.modal-title').text('Error');
+            $('.modal-body').text('Please make sure all questions have been filled in.');
+            $('#modal').show();
+        }
+    });
+
+    function formIsValid() {
+        return ($('#name').val() !== '' && $('#image').val() !== '' && $('#q1').val() !== null &&
+            $('#q2').val() !== null && $('#q3').val() !== null && $('#q4').val() !== null &&
+            $('#q5').val() !== null && $('#q6').val() !== null && $('#q7').val() !== null &&
+            $('#q8').val() !== null && $('#q9').val() !== null && $('#q10').val() !== null);
+    }
+
+    function makeMatch(data, newPerson) {
+        var difference = 50;
+        var minName;
+        var minImage;
+        data.forEach(function(person) {
+            localDiff = newPerson.total - person.total;
+            if (Math.abs(localDiff) < difference) {
+                difference = localDiff;
+                minName = person.name;
+                minImage = person.image;
+            }
+        });
+        return {
+            name: minName,
+            image: minImage
+        };
+    }
+    </script>
 </body>
 
 </html>

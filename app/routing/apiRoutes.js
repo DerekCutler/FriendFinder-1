@@ -12,7 +12,7 @@ router.get('/api/friends', function(req, res) {
 
 // define the about route
 router.post('/api/friends', function(req, res) {
-    console.log('HIT THE POST');
+    friends.push(req.body);
 });
 
 module.exports = router;
