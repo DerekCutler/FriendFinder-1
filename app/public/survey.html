@@ -169,50 +169,63 @@
         </div>
     </div>
     <script type="text/javascript">
+    // declare global variables
+    var nameVal, imageVal, q1Val, q2Val, q3Val, q4Val, q5Val, q6Val, q7Val, q8Val, q9Val, q10Val, newPerson;
+
     $('#submit').on('click', function(event) {
         event.preventDefault();
-        var newPerson = {
-            name: $('#name').val(),
-            image: $('#image').val(),
-            responses: [
-                $('#q1').val(), $('#q2').val(), $('#q3').val(), $('#q4').val(),
-                $('#q5').val(), $('#q6').val(), $('#q7').val(), $('#q8').val(),
-                $('#q9').val(), $('#q10').val()
-            ],
-            total: parseInt($('#q1').val()) + parseInt($('#q2').val()) + parseInt($('#q3').val()) +
-                parseInt($('#q4').val()) + parseInt($('#q5').val()) + parseInt($('#q6').val()) +
-                parseInt($('#q7').val()) + parseInt($('#q8').val()) + parseInt($('#q9').val()) +
-                parseInt($('#q10').val())
+        // set global variable values for multiple uses in this and other functions
+        nameVal = $('#name').val();
+        imageVal = $('#image').val();
+        q1Val = parseInt($('#q1').val());
+        q2Val = parseInt($('#q2').val());
+        q3Val = parseInt($('#q3').val());
+        q4Val = parseInt($('#q4').val());
+        q5Val = parseInt($('#q5').val());
+        q6Val = parseInt($('#q6').val());
+        q7Val = parseInt($('#q7').val());
+        q8Val = parseInt($('#q8').val());
+        q9Val = parseInt($('#q9').val());
+        q10Val = parseInt($('#q10').val());
+        newPerson = {
+            name: nameVal,
+            image: imageVal,
+            responses: [q1Val, q2Val, q3Val, q4Val, q5Val, q6Val, q7Val, q8Val, q9Val, q10Val],
+            total: q1Val + q2Val + q3Val + q4Val + q5Val + q6Val + q7Val + q8Val + q9Val + q10Val
         };
+        // declare and set local variables
+        var modalTitle = $('.modal-title');
+        var modalBody = $('.modal-body');
+        var modal = $('#modal');
+        var apiFriendsRoute = '/api/friends';
+
         if (formIsValid()) {
-            $.get('/api/friends', function(data) {
-                var match = makeMatch(data, newPerson);
+            $.get(apiFriendsRoute, function(data) {
+                var match = makeMatch(data);
                 if (match.name !== undefined) {
-                    $('.modal-title').text('You have a match!');
-                    $('.modal-body').html('<p class="strong">You\'re most compatible with:</p><p>' + match.name + '</p><img src="' + match.image + '" height="45">');
+                    modalTitle.text('You have a match!');
+                    modalBody.html('<p class="strong">You\'re most compatible with:</p><p>' + match.name + '</p><img src="' + match.image + '" height="45">');
                 } else {
-                    $('.modal-title').text('Too few friends');
-                    $('.modal-body').text('Sorry, there are too few friends to match you with.');
+                    modalTitle.text('Too few friends');
+                    modalBody.text('Sorry, there are too few friends to match you with.');
                 }
-                $('#modal').modal('show');
+                modal.show();
                 $('.form')[0].reset();
-                $.post('/api/friends', newPerson);
+                $.post(apiFriendsRoute, newPerson);
             });
         } else {
-            $('.modal-title').text('Error');
-            $('.modal-body').text('Please make sure all questions have been filled in.');
-            $('#modal').show();
+            modalTitle.text('Error');
+            modalBody.text('Please make sure all questions have been filled in.');
+            modal.show();
         }
     });
 
     function formIsValid() {
-        return ($('#name').val() !== '' && $('#image').val() !== '' && $('#q1').val() !== null &&
-            $('#q2').val() !== null && $('#q3').val() !== null && $('#q4').val() !== null &&
-            $('#q5').val() !== null && $('#q6').val() !== null && $('#q7').val() !== null &&
-            $('#q8').val() !== null && $('#q9').val() !== null && $('#q10').val() !== null);
+        return (nameVal !== '' && imageVal !== '' && !isNaN(q1Val) && !isNaN(q2Val) && !isNaN(q3Val) && !isNaN(q4Val) &&
+            !isNaN(q5Val) && !isNaN(q6Val) && !isNaN(q7Val) && !isNaN(q8Val) && !isNaN(q9Val) && !isNaN(q10Val));
     }
 
-    function makeMatch(data, newPerson) {
+    function makeMatch(data) {
         var difference = 50;
         var minName;
         var minImage;
