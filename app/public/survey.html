@@ -168,7 +168,7 @@
             </div>
         </div>
     </div>
-    <script>
+    <script type="text/javascript">
     $('#submit').on('click', function(event) {
         event.preventDefault();
         var newPerson = {
@@ -187,8 +187,13 @@
         if (formIsValid()) {
             $.get('/api/friends', function(data) {
                 var match = makeMatch(data, newPerson);
-                $('.modal-title').text('You have a match!');
-                $('.modal-body').html('<p class="strong">You\'re most compatible with:</p><p>' + match.name + '</p><img src="' + match.image + '" height="45">');
+                if (match.name !== undefined) {
+                    $('.modal-title').text('You have a match!');
+                    $('.modal-body').html('<p class="strong">You\'re most compatible with:</p><p>' + match.name + '</p><img src="' + match.image + '" height="45">');
+                } else {
+                    $('.modal-title').text('Too few friends');
+                    $('.modal-body').text('Sorry, there are too few friends to match you with.');
+                }
                 $('#modal').modal('show');
                 $('.form')[0].reset();
                 $.post('/api/friends', newPerson);
@@ -212,8 +217,8 @@
         var minName;
         var minImage;
         data.forEach(function(person) {
-            localDiff = newPerson.total - person.total;
-            if (Math.abs(localDiff) < difference) {
+            var localDiff = Math.abs(newPerson.total - person.total);
+            if (localDiff < difference) {
                 difference = localDiff;
                 minName = person.name;
                 minImage = person.image;
