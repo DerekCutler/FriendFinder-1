@@ -23,9 +23,6 @@ app.listen(PORT, function() {
 // Routes
 // =============================================================
 // html routes
-var htmlRoutes = require('./app/routing/htmlRoutes.js');
-app.use('/', htmlRoutes);
-
+require('./app/routing/htmlRoutes.js')(app);
 // api routes
-var apiRoutes = require('./app/routing/apiRoutes.js');
-app.use('/', apiRoutes);
+require('./app/routing/apiRoutes.js')(app);
