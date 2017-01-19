@@ -209,6 +209,7 @@
                     modalTitle.text('Too few friends');
                     modalBody.text('Sorry, there are too few friends to match you with.');
                 }
+            }).then(function() {
                 modal.show();
                 $('.form')[0].reset();
                 $.post(apiFriendsRoute, newPerson);
